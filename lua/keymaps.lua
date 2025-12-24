@@ -1,9 +1,15 @@
 vim.g.mapleader = ' '
 
 vim.keymap.set('i', 'jj', '<Esc>')
-vim.keymap.set('n', '<leader>s', ':w<CR>')
+vim.keymap.set('n', '<leader>s', ':w<CR>:PrettierAsync<CR>')
 vim.keymap.set('n', '<leader>q', ':wq<CR>')
 vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>")
 vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<CR>")
 vim.keymap.set("n", "<leader>pv", ":Ex<CR>", { silent = true })
 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
+vim.keymap.set("n", "<leader>f", function()
+	vim.lsp.buf.format({ async = true })
+end)
+vim.keymap.set("n", "<j>", "<C-d>")
+vim.keymap.set("n", "<leader>fep", '"hy:%s/')
+vim.keymap.set("v", "<leader>fep", '"hy:%s/<C-r>h/', { noremap = true, silent = false })

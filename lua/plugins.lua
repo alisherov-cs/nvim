@@ -19,8 +19,9 @@ require("lazy").setup({
 		build = ":TSUpdate",
 		config = function ()
 			require("nvim-treesitter.config").setup({
-				ensure_installed = { "lua", "typescript", "tsx", "javascript" },
+				ensure_installed = { "html", "css", "lua", "typescript", "tsx", "javascript" },
 				highlight = { enable = true },
+				autotag = { enable = true }
 			})
 		end
 	},
@@ -63,7 +64,9 @@ require("lazy").setup({
 			require("mason-lspconfig").setup({
 				ensure_installed = {
 					"lua_ls",
-					"ts_ls"
+					"ts_ls",
+					"html",
+					"tailwindcss"
 				},
 			})
 		end,
@@ -81,6 +84,38 @@ require("lazy").setup({
 					Lua = {
 						diagnostics = {
 							globals = { "vim" },
+						},
+					},
+				},
+			})
+
+			vim.lsp.config("tailwindcss", {
+				filetypes = {
+					"html",
+					"css",
+					"scss",
+					"javascript",
+					"javascriptreact",
+					"typescript",
+					"typescriptreact",
+					"tsx",
+				},
+
+				init_options = {
+					userLanguages = {
+						typescript = "javascript",
+						typescriptreact = "javascript",
+					},
+				},
+
+				settings = {
+					tailwindCSS = {
+						classAttributes = { "class", "className", "clsx", "cva" },
+						experimental = {
+							classRegex = {
+								"clsx%(([^)]*)%)",
+								"cva%(([^)]*)%)",
+							},
 						},
 					},
 				},
@@ -130,6 +165,7 @@ require("lazy").setup({
 			vim.lsp.enable({
 				"lua_ls",
 				"ts_ls",
+				'autotag'
 			})
 		end,
 	},
@@ -153,18 +189,51 @@ require("lazy").setup({
 			})
 		end,
 	},
+	{
+		"jose-elias-alvarez/null-ls.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+	},
+	{
+		"windwp/nvim-ts-autotag",
+		event = "InsertEnter",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		opts = {
+			enable_close = true, -- Auto close tags
+			enable_rename = true, -- Auto rename pairs of tags
+			enable_close_on_slash = true -- Auto close on trailing </
+		},
+		per_filetype = {
+			["javascriptreact"] = {
+				enable_close = true,
+				enable_rename = true,
+				enable_close_on_slash = true
+			},
+			["typescriptreact"] = {
+				enable_close = true,
+				enable_rename = true,
+				enable_close_on_slash = true
+			}
+		},
+		config = function()
+			require("nvim-ts-autotag").setup()
+		end
+	},
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		config = function()
+			require("nvim-autopairs").setup()
+		end
+	},
+	{
+		"prettier/vim-prettier",
+		run = "yarn install",
+	},
+	{
+		"alvan/vim-closetag"
+	},
+	{
+		"lewis6991/gitsigns.nvim"
+	}
 })
 
-vim.api.nvim_create_user_command("Prettier", function()
-	vim.cmd("!npx prettier --write %")
-end, {})
-
-vim.api.nvim_create_autocmd("BufWritePre", {
-	pattern = { "*.js", "*.ts", "*.tsx", "*.json", "*.css", "*.html" },
-	callback = function()
-		vim.fn.jobstart({ "npx", "prettier", "--write", vim.fn.expand("%") }, {
-			stdout_buffered = true,
-			stderr_buffered = true,
-		})
-	end,
-})
