@@ -13,3 +13,16 @@ vim.opt.undodir = undodir
 
 vim.opt.undolevels = 1000       -- max undo steps
 vim.opt.undoreload = 10000      -- max lines to save for undo
+
+vim.g['prettier#autoformat'] = 1
+vim.g['prettier#autoformat_require_pragma'] = 0
+vim.g['prettier#config#config_precedence'] = 'prefer-file'
+
+vim.filetype.add({
+  extension = {
+    prisma = "prisma",
+  },
+  pattern = {
+    [".*%.prisma"] = "prisma",
+  },
+})

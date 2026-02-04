@@ -19,7 +19,7 @@ require("lazy").setup({
 		build = ":TSUpdate",
 		config = function ()
 			require("nvim-treesitter.config").setup({
-				ensure_installed = { "html", "css", "lua", "typescript", "tsx", "javascript" },
+				ensure_installed = { "html", "css", "lua", "typescript", "tsx", "javascript", "prisma" },
 				highlight = { enable = true },
 				autotag = { enable = true }
 			})
@@ -66,7 +66,8 @@ require("lazy").setup({
 					"lua_ls",
 					"ts_ls",
 					"html",
-					"tailwindcss"
+					"tailwindcss",
+                    "prismals"
 				},
 			})
 		end,
@@ -121,6 +122,19 @@ require("lazy").setup({
 				},
 			})
 
+            vim.lsp.config('prismals', {
+                capabilities = capabilities,
+                filetypes = {
+                    "prisma"
+                },
+
+                settings = {
+                    prisma = {
+                        prismaFmtBinPath = ""
+                    }
+                }
+            })
+
 			-- TypeScript LSP
 			vim.lsp.config("ts_ls", {
 				capabilities = capabilities,
@@ -165,7 +179,8 @@ require("lazy").setup({
 			vim.lsp.enable({
 				"lua_ls",
 				"ts_ls",
-				'autotag'
+				'autotag',
+                'prismals'
 			})
 		end,
 	},
@@ -218,6 +233,25 @@ require("lazy").setup({
 			require("nvim-ts-autotag").setup()
 		end
 	},
+    {
+        "stevearc/conform.nvim",
+        opts = {
+            formatters_by_ft = {
+                prisma = {
+                    {
+                        -- Use a custom function to tell the formatter to use a temp file
+                        -- instead of piping via stdin
+                        command = "npx",
+                        args = { "prisma", "format", "--schema", "$FILE" },
+                        stdin = false,
+                    },
+                },
+                -- ... other filetype formatters
+            },
+            -- Optional: format on save
+            -- format_on_save = { timeout_ms = 500, lsp_fallback = true },
+        },
+    },
 	{
 		"windwp/nvim-autopairs",
 		event = "InsertEnter",
